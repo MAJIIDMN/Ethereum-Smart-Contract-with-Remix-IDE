@@ -20,7 +20,7 @@ contract SepoliaMultiApprovalPayout {
         address _B,
         address _C,
         address payable _recipient
-    ) {
+    ) payable {
         approverA = _A;
         approverB = _B;
         approverC = _C;
@@ -47,15 +47,14 @@ contract SepoliaMultiApprovalPayout {
         return approved[approverA] && approved[approverB] && approved[approverC];
     }
 
-    function executeAction(uint256 amountInWei) external onlyApprovers {
+    function executeAction() external onlyApprovers {
         require(!executed, "Already executed");
         require(isConsensusReached(), "Consensus not reached");
-        require(address(this).balance >= amountInWei, "Insufficient contract balance");
 
         executed = true;
-        recipient.transfer(amountInWei);
+        recipient.transfer(address(this).balance);
 
-        emit Executed(msg.sender, amountInWei, recipient);
+        emit Executed(msg.sender, address(this).balance, recipient);
     }
 
     receive() external payable {
